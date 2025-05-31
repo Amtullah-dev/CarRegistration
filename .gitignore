@@ -1,0 +1,9 @@
+__pycache__/
+celery_broker.db
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+instance/
+celery_data/
+celery_results/
+.env
