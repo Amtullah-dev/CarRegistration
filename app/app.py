@@ -109,7 +109,7 @@ def login():
             "access_token": token,
             "message": "Login successful"
         }), 200
-    
+    print(token)
     return jsonify({"message": "Invalid credentials"}), 401
 
 
