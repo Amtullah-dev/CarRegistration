@@ -7,3 +7,6 @@ instance/
 celery_data/
 celery_results/
 .env
+celery_broker.sqlite
+.idea/
+.vscode/
