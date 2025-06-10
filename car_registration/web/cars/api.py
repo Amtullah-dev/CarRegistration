@@ -3,8 +3,8 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
-from models import Car
-from schemas.schemas import CarSchema
+from car_registration.models.car_model import Car
+from car_registration.web.cars.schemas import CarSchema
 
 car_bp = Blueprint('cars', __name__)
 
@@ -48,7 +48,7 @@ def sync_cars():
 @jwt_required()
 def get_cars():
     """
-    Search and filter cars with pagination
+    Search and filter cars
     Query parameters:
     - make: Filter by car make (partial match)
     - model: Filter by car model (partial match)

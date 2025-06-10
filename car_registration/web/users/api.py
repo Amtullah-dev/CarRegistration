@@ -1,8 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
-from models import db, User
-from schemas.schemas import UserSchema
+from car_registration.models.user_model import db, User
+from car_registration.web.users.schemas import UserSchema
 import datetime
 
 auth_bp = Blueprint('auth', __name__)
@@ -60,7 +60,7 @@ def login():
             expires_delta=datetime.timedelta(hours=24)
         )
         return jsonify({
-            "access_token": token,
+            "access-token": token,
             "message": "Login successful"
         }), 200
 

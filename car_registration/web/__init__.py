@@ -1,6 +1,6 @@
 # tasks/car-registration-tasks/__init__.py
-from .auth_routes import auth_bp
-from .car_routes import car_bp
+from car_registration.web.users.api import auth_bp
+from car_registration.web.cars.api import car_bp
 
 def register_routes(app):
     """Register all route blueprints with the Flask app"""

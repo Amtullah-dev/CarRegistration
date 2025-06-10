@@ -1,6 +1,6 @@
 import logging
 
-from tasks.celery.celery_app import app, db
+from tasks.celery_app import app, db
 
 logger = logging.getLogger(__name__)
 

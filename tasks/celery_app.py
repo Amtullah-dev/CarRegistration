@@ -2,15 +2,39 @@ import logging
 import os
 import requests
 
+from celery import Celery
+from celery.schedules import crontab
 from flask import current_app
 from config import Config
-from tasks.celery.celery_config import create_celery
-from models.car_model import db, Car
+from car_registration.models.car_model import db, Car
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Create Celery instance without Flask app
+
+def create_celery(app_name):
+    """Create and configure Celery instance"""
+    celery = Celery(
+        app_name,
+        broker='sqla+sqlite:///celery_broker.sqlite',
+        backend='db+sqlite:///celery_results.sqlite'
+    )
+    
+    # Set timezone
+    celery.conf.timezone = 'Asia/Karachi'
+    
+    # Define periodic task schedule
+    celery.conf.beat_schedule = {
+        'sync-cars-daily-2am': {
+            'task': 'car_sync_celery.sync_car_data_task',
+            'schedule': crontab(hour=11, minute=35),
+        }
+    }
+    
+    return celery
+
+
+# Create Celery instance
 celery = create_celery(__name__)
 
 
@@ -127,3 +151,4 @@ def sync_car_data_function():
         db.session.rollback()
         logger.error(f"Error in sync_car_data_function: {str(e)}")
         return {"status": "error", "message": str(e)}
+    

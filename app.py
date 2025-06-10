@@ -4,11 +4,10 @@ import os
 from flask import Flask, jsonify
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
-from flask_sqlalchemy import SQLAlchemy
 
 from config import Config
-from models.database import db
-from schemas.schemas import ma
+from car_registration.models.database import db
+from car_registration.web.cars.schemas import ma
 
 # Configure logging
 logging.basicConfig(
@@ -28,7 +27,7 @@ jwt = JWTManager(app)
 
 # Initialize Celery
 try:
-    from tasks.celery.celery_app import celery
+    from tasks.celery_app import celery
 
     celery.conf.update(
         task_routes={
@@ -46,7 +45,7 @@ except Exception as e:
     app.extensions['celery'] = None
 
 # Register route blueprints
-from tasks.car_registration_tasks import register_routes
+from car_registration.web import register_routes
 
 register_routes(app)
 
@@ -85,7 +84,7 @@ if __name__ == '__main__':
         db.create_all()
 
         try:
-            from tasks.celery.celery_app import sync_car_data_function
+            from tasks.celery_app import sync_car_data_function
             logger.info("Starting initial car data sync...")
             result = sync_car_data_function()
             logger.info(f"Initial sync result: {result}")

@@ -6,7 +6,12 @@ class Config:
     SECRET_KEY = 'your-secret-key'
 
     # Database
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///cars.db'
+
+    # Old SQlite DB 
+    # SQLALCHEMY_DATABASE_URI = 'sqlite:///cars.db'
+
+    # New MySQL DB 
+    SQLALCHEMY_DATABASE_URI = 'mysql://root:aj-dev014@0126@localhost/car_registration'
 
     # JWT settings
     JWT_SECRET_KEY = 'your-jwt-secret'
