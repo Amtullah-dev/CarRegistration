@@ -1,8 +1,6 @@
-from flask_marshmallow import Marshmallow
-from marshmallow import fields, validate
+from marshmallow import fields, Schema, validate
 
-ma = Marshmallow()
 
-class UserSchema(ma.Schema):
+class UserSchema(Schema):
     username = fields.String(required=True, validate=validate.Length(min=3))
     password = fields.String(required=True, validate=validate.Length(min=6))

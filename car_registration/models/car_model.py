@@ -1,9 +1,12 @@
-from car_registration.models.database import db
+from sqlalchemy import Column, Integer, String
+from car_registration.models.base import Base
 
-class Car(db.Model):
+
+class Car(Base):
+
     __tablename__ = 'car'
-    id = db.Column(db.Integer, primary_key=True)
-    make = db.Column(db.String(100))
-    model = db.Column(db.String(100))
-    year = db.Column(db.Integer)
-    
+
+    id = Column(Integer, primary_key=True)
+    make = Column(String(100))
+    model = Column(String(100))
+    year = Column(Integer)

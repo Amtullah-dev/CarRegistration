@@ -1,10 +1,9 @@
-# tasks/car-registration-tasks/car_routes.py
-
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
 
 from car_registration.models.car_model import Car
 from car_registration.web.cars.schemas import CarSchema
+from car_registration.models.database import db  # Add this import
 
 car_bp = Blueprint('cars', __name__)
 
@@ -21,21 +20,22 @@ def sync_cars():
     Requires JWT authentication
     """
     celery = current_app.extensions.get('celery')
-
+    
     if celery is None:
         try:
-            from celery_app import sync_car_data_function
-            result = sync_car_data_function()
+            # from car_registration.tasks.car_tasks.sync_cars_with_celery import sync_car_data_function
+            from car_registration.tasks.car_tasks.sync_cars_with_celery import sync_car_data
+            result = sync_car_data()
             return jsonify({
                 "message": "Car data sync completed (direct execution)",
                 "result": result
             }), 200
         except Exception as e:
             return jsonify({"message": f"Sync failed: {str(e)}"}), 500
-
+    
     try:
-        from celery_app import sync_car_data_task
-        task = sync_car_data_task.delay()
+        from car_registration.tasks.car_tasks.sync_cars_with_celery import sync_car_data
+        task = sync_car_data.delay()
         return jsonify({
             "message": "Car data sync initiated",
             "task_id": task.id
@@ -61,15 +61,15 @@ def get_cars():
     year = request.args.get('year', type=int)
     page = request.args.get('page', 1, type=int)
     per_page = min(request.args.get('per_page', 10, type=int), 100)
-
+    
     if page < 1:
         return jsonify({"message": "Page must be greater than 0"}), 400
     if per_page < 1:
         return jsonify({"message": "Per page must be greater than 0"}), 400
-
+    
     try:
-        query = Car.query
-
+        query = db.session.query(Car)  
+        
         if make:
             query = query.filter(Car.make.ilike(f"%{make}%"))
         if model:
@@ -80,13 +80,13 @@ def get_cars():
                     "message": "Year must be between 2012 and 2022"
                 }), 400
             query = query.filter_by(year=year)
-
+        
         paginated = query.paginate(
             page=page,
             per_page=per_page,
             error_out=False
         )
-
+        
         response = {
             "total": paginated.total,
             "pages": paginated.pages,
@@ -96,8 +96,9 @@ def get_cars():
             "has_prev": paginated.has_prev,
             "cars": cars_schema.dump(paginated.items)
         }
-
+        
         return jsonify(response), 200
-
+    
     except Exception as e:
         return jsonify({"message": f"Search failed: {str(e)}"}), 500
+    

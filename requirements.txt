@@ -17,3 +17,8 @@ click-plugins==1.1.1
 click-repl==0.3.0
 pytz==2023.3
 sqlalchemy==2.0.23
+psycopg2-binary
+pymysql
+flask-migrate
+redis
+cryptography
