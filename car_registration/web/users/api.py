@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, session as flask_session
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
+from app import get_db_session
 from car_registration.models.user_model import User
 from car_registration.web.users.schemas import UserSchema
 import datetime
@@ -12,20 +13,7 @@ from sqlalchemy import create_engine
 auth_bp = Blueprint('auth', __name__)
 bcrypt = Bcrypt()
 user_schema = UserSchema()
-engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
-Session = sessionmaker(bind=engine)
 
-@contextmanager
-def get_db_session():
-    db_session = Session()
-    try:
-        yield db_session
-        db_session.commit()
-    except Exception:
-        db_session.rollback()
-        raise
-    finally:
-        db_session.close()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():

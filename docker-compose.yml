@@ -1,17 +1,17 @@
 services:
   web:
     build: .
-    command: sh /app/bin/web.sh
+    command: ./app/bin/web.sh
     ports:
       - "5000:5000"
 
   worker:
     build: .
-    command: sh /app/bin/celery_worker.sh
+    command: ./app/bin/celery_worker.sh
 
   beat:
     build: .
-    command: sh /app/bin/celery_beat.sh
+    command: ./app/bin/celery_beat.sh
     depends_on:
       - worker
     

@@ -3,13 +3,9 @@ from flask_jwt_extended import jwt_required
 
 from car_registration.models.car_model import Car
 from car_registration.web.cars.schemas import CarSchema
-from car_registration.models.database import db  # Add this import
+from car_registration.models.database import db  
 
 car_bp = Blueprint('cars', __name__)
-
-# Schemas
-car_schema = CarSchema()
-cars_schema = CarSchema(many=True)
 
 
 @car_bp.route('/sync-cars', methods=['POST'])
