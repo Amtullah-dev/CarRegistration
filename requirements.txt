@@ -1,12 +1,3 @@
-# Flask
-# Flask-SQLAlchemy
-# Flask-Bcrypt
-# Flask-JWT-Extended
-# Flask-Marshmallow
-# requests
-
-
-
 # requirements.txt
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
@@ -26,3 +17,8 @@ click-plugins==1.1.1
 click-repl==0.3.0
 pytz==2023.3
 sqlalchemy==2.0.23
+psycopg2-binary
+pymysql
+flask-migrate
+redis
+cryptography

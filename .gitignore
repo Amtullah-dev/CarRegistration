@@ -7,3 +7,17 @@ instance/
 celery_data/
 celery_results/
 .env
+celery_broker.sqlite
+.idea/
+.vscode/
+demo_mysql_test.py
+init_db.py
+create_db.py
+auth.py
+database.py
+celery_debug_complete.py
+celery_results.sqlite
+setup_database.py
+celery_app_test.py
+init_db.py
+database.py
