@@ -1,22 +1,32 @@
 from flask import Blueprint, request, jsonify, session as flask_session
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
-from app import get_db_session
+from car_registration.tasks.celery_app import get_db_session
 from car_registration.models.user_model import User
 from car_registration.web.users.schemas import UserSchema
 import datetime
+import logging
 from contextlib import contextmanager
 from sqlalchemy.orm import sessionmaker
 from config import Config
 from sqlalchemy import create_engine
+from flask import jsonify
+from car_registration.web.users.validation import validate_json
+from car_registration.web.users.schemas import RegisterSchema, LoginSchema, RegisterOutputSchema
+from flask_apispec import use_kwargs, marshal_with as output
 
-auth_bp = Blueprint('auth', __name__)
+
+auth_bp = Blueprint('auth_bp', __name__)
 bcrypt = Bcrypt()
 user_schema = UserSchema()
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @auth_bp.route('/register', methods=['POST'])
-def register():
+@validate_json(RegisterSchema)
+@output(RegisterOutputSchema, code=201)
+def register(data):
     """
     Register a new user
     Expected JSON: {"username": "string", "password": "string"}
@@ -24,31 +34,34 @@ def register():
     data = request.get_json()
 
     if not data:
-        return jsonify({"message": "No data provided"}), 400
+        return {"message": "No data provided"}, 400
 
     errors = user_schema.validate(data)
     if errors:
-        return jsonify(errors), 400
+        return {errors}, 400
 
     with get_db_session() as db_session:
         existing_user = db_session.query(User).filter_by(username=data['username']).first()
         if existing_user:
-            return jsonify({"message": "User already exists"}), 409
+            return {"message": "User exists"}, 409
 
         hashed_pw = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         user = User(username=data['username'], password=hashed_pw)
 
         db_session.add(user)
 
-    return jsonify({"message": "User registered successfully"}), 201
+    return {"message": "User registered successfully"}, 201
 
 @auth_bp.route('/login', methods=['POST'])
-def login():
+@validate_json(LoginSchema)
+def login(data):
     """
     Login user and store session
     Expected JSON: {"username": "string", "password": "string"}
     """
-    data = request.get_json()
+    # data = request.get_json()
+    username = data['username']
+    password = data['password']
 
     if not data or 'username' not in data or 'password' not in data:
         return jsonify({"message": "Username and password required"}), 400
@@ -61,7 +74,6 @@ def login():
             identity=user.username,
             expires_delta=datetime.timedelta(hours=24)
         )
-            # Store user info in flask session
             flask_session['username'] = user.username
             flask_session['logged_in'] = True
             flask_session['login_time'] = datetime.datetime.utcnow().isoformat()

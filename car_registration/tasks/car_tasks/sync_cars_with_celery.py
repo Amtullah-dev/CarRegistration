@@ -9,7 +9,6 @@ from car_registration.tasks.celery_app import celery
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# @celery.task(name='celery_app_test.sync_car_data')
 @celery.task(name='car_registration.tasks.car_tasks.sync_cars_with_celery.sync_car_data')
 def sync_car_data():
     """Sync car data from external API every 5 minutes"""
@@ -60,10 +59,13 @@ def sync_car_data():
 
                 params["skip"] += params["limit"]
 
-        logger.info(f"Car sync completed. Added {added} new cars.")
+        logger.info(f"Car sync with Database completed. Added {added} new cars.")
         return {"status": "success", "added": added}
         
     except Exception as e:
         logger.error(f"Error syncing car data: {e}")
         raise
+
+
+
     

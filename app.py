@@ -5,12 +5,26 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from apiflask import APIFlask
 
 from config import Config
-from car_registration.models.database import db
+from car_registration.models import db
 from car_registration.web import register_routes
 
-app = Flask(__name__)
+from apiflask import APIFlask, Schema
+from apiflask.fields import String, Integer, Field
+
+app = APIFlask(__name__)
+
+# class BaseResponse(Schema):
+#     data = Field()  # the data key
+#     message = String()
+#     code = Integer()
+#
+# app.config['BASE_RESPONSE_SCHEMA'] = BaseResponse
+# app.config['BASE_RESPONSE_DATA_KEY '] = 'data'
+app.config['BASE_RESPONSE_SCHEMA'] = None  # No base response wrapping
+app.config['BASE_RESPONSE_DATA_KEY'] = 'data'
 app.config.from_object(Config)
 
 db.init_app(app)
@@ -20,6 +34,10 @@ jwt = JWTManager(app)
 register_routes(app)
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
+# For example in app.py or wherever you initialize your app
+# from car_registration.web.users.schemas import BaseResponseSchema
+
+# app.config['BASE_RESPONSE_SCHEMA'] = BaseResponseSchema
 
 @contextmanager
 def get_db_session():

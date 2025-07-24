@@ -1,21 +1,54 @@
 services:
   web:
     build: .
-    command: ./app/bin/web.sh
+    command: ./bin/web.sh
     ports:
       - "5000:5000"
+    networks:
+      - my-grpc-network
 
-  worker:
-    build: .
-    command: ./app/bin/celery_worker.sh
-
-  beat:
-    build: .
-    command: ./app/bin/celery_beat.sh
-    depends_on:
-      - worker
-    
   redis:
     image: redis:7
     ports:
       - "6379:6379"
+    networks:
+      - my-grpc-network
+
+  celery-worker:
+    build: .
+    command: ./bin/celery_worker.sh
+    depends_on:
+      - redis
+    networks:
+      - my-grpc-network
+
+  celery-beat:
+    build: .
+    command: ./bin/celery_beat.sh
+    depends_on:
+      - redis
+    networks:
+      - my-grpc-network
+
+  client:
+    build: .
+    command: ./bin/client.sh
+    depends_on:
+      - grpc-server
+      - celery-worker
+    networks:
+      - my-grpc-network
+
+  grpc-server:
+    build: .
+    command: ./bin/server.sh
+    ports:
+      - "50051:50051"
+    depends_on:
+      - redis
+      - celery-worker
+    networks:
+      - my-grpc-network
+
+networks:
+  my-grpc-network:

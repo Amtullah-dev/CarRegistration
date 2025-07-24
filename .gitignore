@@ -21,3 +21,4 @@ setup_database.py
 celery_app_test.py
 init_db.py
 database.py
+structure.txt
